@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Sonyc{% endblock %}</title>
+    <style>
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: hwb(0 100% 0%);
+            background-color: #100c30;
+            color: #f0ebeb;
+        }
+
+        a {
+            text-decoration: none;
+            color: #ffffff;
+        }
+
+        /* Header */
+        .header {
+            background-color: #000;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #1DB954;
+        }
+
+        .nav ul {
+            display: flex;
+            list-style: none;
+        }
+
+        .nav ul li {
+            margin-left: 1.5rem;
+        }
+
+        .nav a {
+            color: #f8f8f8;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav a:hover {
+            color: #1DB954;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        /* Messages */
+        .messages {
+            margin-bottom: 1.5rem;
+        }
+
+        .message {
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.5rem;
+            border-radius: 4px;
+        }
+
+        .success {
+            background-color: rgba(29, 185, 84, 0.2);
+            border-left: 4px solid #1DB954;
+        }
+
+        .error {
+            background-color: rgba(235, 64, 52, 0.2);
+            border-left: 4px solid #EB4034;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #444;
+            border-radius: 4px;
+            background-color: #333;
+            color: #f8f8f8;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background-color: #1DB954;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #18a048;
+        }
+
+        /* Cards */
+        .song-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .song-card {
+            background-color: #242424;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .song-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .song-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .song-info {
+            padding: 1rem;
+        }
+
+        .song-title {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            color: #f8f8f8;
+        }
+
+        .song-meta {
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+
+        .song-rating {
+            margin-top: 0.5rem;
+            color: #1DB954;
+            font-weight: bold;
+        }
+
+        /* Detail Page */
+        .song-detail {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .song-detail-image {
+            width: 300px;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .song-detail-info {
+            flex: 1;
+        }
+
+        .song-detail-title {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .song-detail-meta {
+            margin-bottom: 0.5rem;
+            color: #ddd;
+        }
+
+        .song-detail-rating {
+            font-size: 1.2rem;
+            margin-top: 1rem;
+            color: #1DB954;
+        }
+
+        .recommendation-btn {
+            display: inline-block;
+            margin-top: 1.5rem;
+        }
+
+        /* Recommendations */
+        .match-tag {
+            display: inline-block;
+            background-color: rgba(29, 185, 84, 0.2);
+            color: #1DB954;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            margin-right: 0.5rem;
+            font-size: 0.8rem;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 3rem;
+            background-color: #000;
+            color: #aaa;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">sonyc</div>
+        <nav class="nav">
+            <ul>
+                {% if user.is_authenticated %}
+                    <li><a href="{% url 'songsapp:song_list' %}">Home</a></li>
+                    <li><a href="{% url 'usersapp:profile' %}">Profile</a></li>
+                    <li><a href="{% url 'usersapp:logout' %}">Logout</a></li>
+                {% else %}
+                    <li><a href="{% url 'usersapp:login' %}">Login</a></li>
+                    <li><a href="{% url 'usersapp:register' %}">Register</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                    <div class="message {{ message.tags }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2025 SonYc - A Simple Spotify Clone</p>
+    </footer>
+</body>
+</html>

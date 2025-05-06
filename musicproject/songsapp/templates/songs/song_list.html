@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}Songs - Sonyc{% endblock %}
+
+{% block content %}
+    <h1>Explore Songs</h1>
+    
+    {% if songs %}
+        <div class="song-grid">
+            {% for song in songs %}
+                <div class="song-card">
+                    <a href="{% url 'songsapp:song_detail' song.id %}">
+                        <img src="{{ song.image.url }}" alt="{{ song.title }}" class="song-image">
+                        <div class="song-info">
+                            <h3 class="song-title">{{ song.title }}</h3>
+                            <div class="song-meta">
+                                {% if song.movie_name %}From: {{ song.movie_name }}{% endif %}
+                            </div>
+                            <div class="song-meta">
+                                Singer: {{ song.singer }}
+                            </div>
+                            <div class="song-meta">
+                                Genre: {{ song.genre }}
+                            </div>
+                            <div class="song-rating">
+                                Rating: {% for i in "12345" %}
+                                    {% if forloop.counter <= song.rating %}
+                                        ★
+                                    {% else %}
+                                        ☆
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>No songs available.</p>
+    {% endif %}
+{% endblock %}
