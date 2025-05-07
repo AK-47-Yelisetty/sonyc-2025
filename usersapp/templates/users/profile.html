@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block title %}Profile - Sonyc{% endblock %}
+
+{% block content %}
+    <h1>User Profile</h1>
+    <div style="max-width: 800px; margin: 2rem auto; background-color: #242424; padding: 2rem; border-radius: 8px;">
+        <h2>Hello, {{ user.username }}!</h2>
+        <p>Email: {{ user.email }}</p>
+        <p>Joined: {{ user.date_joined|date:"F j, Y" }}</p>
+        
+        <div style="margin-top: 2rem;">
+            <a href="{% url 'songsapp:song_list' %}" class="btn btn-primary">Browse Songs</a>
+        </div>
+    </div>
+{% endblock %}
