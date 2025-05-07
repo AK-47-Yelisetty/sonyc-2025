@@ -1,6 +1,8 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
-from .models import Song
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from .models import Song, Playlist
 
 @login_required
 def song_list(request):
@@ -58,3 +60,36 @@ def song_recommendations(request, song_id):
         'current_song': current_song,
         'recommendations': sorted_recommendations
     })
+
+@login_required
+@require_POST
+def toggle_like(request, song_id):
+    song = get_object_or_404(Song, id=song_id)
+    if request.user in song.likes.all():
+        song.likes.remove(request.user)
+        liked = False
+    else:
+        song.likes.add(request.user)
+        liked = True
+    return JsonResponse({'liked': liked})
+
+@login_required
+@require_POST
+def add_to_playlist(request, playlist_id, song_id):
+    playlist = get_object_or_404(Playlist, id=playlist_id, user=request.user)
+    song = get_object_or_404(Song, id=song_id)
+    playlist.songs.add(song)
+    return JsonResponse({'status': 'success'})
+
+@login_required
+@require_POST
+def remove_from_playlist(request, playlist_id, song_id):
+    playlist = get_object_or_404(Playlist, id=playlist_id, user=request.user)
+    song = get_object_or_404(Song, id=song_id)
+    playlist.songs.remove(song)
+    return JsonResponse({'status': 'success'})
+
+@login_required
+def playlist_detail(request, playlist_id):
+    playlist = get_object_or_404(Playlist, id=playlist_id, user=request.user)
+    return render(request, 'songs/playlist_detail.html', {'playlist': playlist})

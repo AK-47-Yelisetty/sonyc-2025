@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ playlist.name }} - Sonyc{% endblock %}
+
+{% block content %}
+<div class="playlist-detail">
+    <div class="playlist-header">
+        <h1>{{ playlist.name }}</h1>
+        <p class="playlist-meta">
+            <span>{{ playlist.songs.count }} songs</span>
+            <span>Created {{ playlist.created_at|date:"F j, Y" }}</span>
+        </p>
+    </div>
+
+    {% if playlist.songs.all %}
+        <div class="song-list">
+            {% for song in playlist.songs.all %}
+                <div class="song-item">
+                    <img src="{{ song.image.url }}" alt="{{ song.title }}" class="song-thumbnail">
+                    <div class="song-info">
+                        <h3>{{ song.title }}</h3>
+                        <p class="song-meta">
+                            {% if song.movie_name %}From: {{ song.movie_name }}{% endif %}
+                            <span>Singer: {{ song.singer }}</span>
+                            <span>Genre: {{ song.genre }}</span>
+                        </p>
+                    </div>
+                    <div class="song-actions">
+                        <a href="{% url 'songsapp:song_detail' song.id %}" class="btn btn-primary">View</a>
+                        <button class="btn btn-secondary remove-from-playlist" data-song-id="{{ song.id }}">
+                            Remove
+                        </button>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="empty-state">This playlist is empty.</p>
+    {% endif %}
+</div>
+
+<style>
+    .playlist-detail {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .playlist-header {
+        background: var(--white);
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+    }
+
+    .playlist-header h1 {
+        color: var(--navy);
+        margin: 0;
+        font-size: 2.5rem;
+    }
+
+    .playlist-meta {
+        display: flex;
+        gap: 2rem;
+        margin-top: 1rem;
+        color: var(--text-light);
+    }
+
+    .song-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .song-item {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        background: var(--white);
+        padding: 1rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+    }
+
+    .song-item:hover {
+        transform: translateX(5px);
+    }
+
+    .song-thumbnail {
+        width: 80px;
+        height: 80px;
+        border-radius: 4px;
+        object-fit: cover;
+    }
+
+    .song-info {
+        flex-grow: 1;
+    }
+
+    .song-info h3 {
+        margin: 0;
+        color: var(--navy);
+        font-size: 1.2rem;
+    }
+
+    .song-meta {
+        margin-top: 0.5rem;
+        color: var(--text-light);
+        font-size: 0.9rem;
+    }
+
+    .song-meta span {
+        margin-right: 1rem;
+    }
+
+    .song-actions {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+        color: var(--text-light);
+        font-size: 1.1rem;
+        background: var(--white);
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const removeButtons = document.querySelectorAll('.remove-from-playlist');
+    removeButtons.forEach(btn => {
+        btn.addEventListener('click', async () => {
+            if (confirm('Are you sure you want to remove this song from the playlist?')) {
+                const songId = btn.dataset.songId;
+                try {
+                    const response = await fetch(`/songs/playlists/{{ playlist.id }}/remove-song/${songId}/`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                        },
+                    });
+                    if (response.ok) {
+                        btn.closest('.song-item').remove();
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                }
+            }
+        });
+    });
+});
+</script>
+{% endblock %} 

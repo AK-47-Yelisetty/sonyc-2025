@@ -3,48 +3,131 @@
 {% block title %}Songs - Sonyc{% endblock %}
 
 {% block content %}
-    <h1>Explore Songs</h1>
+    <h1>All Songs</h1>
     
-    {% if songs %}
-        <div class="song-grid">
-            {% for song in songs %}
-                <div class="song-card">
-                    <a href="{% url 'songsapp:song_detail' song.id %}">
-                        <img src="{{ song.image.url }}" alt="{{ song.title }}" class="song-image">
-                        <div class="song-info">
-                            <h3 class="song-title">{{ song.title }}</h3>
-                            <div class="song-meta">
-                                {% if song.movie_name %}From: {{ song.movie_name }}{% endif %}
-                            </div>
-                            <div class="song-meta">
-                                Singer: {{ song.singer }}
-                            </div>
-                            <div class="song-meta">
-                                Genre: {{ song.genre }}
-                            </div>
-                            <div class="song-rating">
-                                Rating: {% for i in "12345" %}
-                                    {% if forloop.counter <= song.rating %}
-                                        ★
-                                    {% else %}
-                                        ☆
-                                    {% endif %}
-                                {% endfor %}
-                            </div>
-                            {% if song.audio_file %}
-                            <div class="play-button" style="margin-top: 1rem;">
-                                <audio controls style="width: 100%;">
-                                    <source src="{{ song.audio_file.url }}" type="audio/mpeg">
-                                    Your browser does not support the audio element.
-                                </audio>
-                            </div>
-                            {% endif %}
-                        </div>
-                    </a>
+    <div class="song-grid">
+        {% for song in songs %}
+            <div class="song-card">
+                <div class="song-image-container">
+                    <img src="{{ song.image.url }}" alt="{{ song.title }}" class="song-image">
+                    <div class="song-overlay">
+                        <button class="btn btn-primary view-btn" onclick="window.location.href='{% url 'songsapp:song_detail' song.id %}'">
+                            View Details
+                        </button>
+                    </div>
                 </div>
-            {% endfor %}
-        </div>
-    {% else %}
-        <p>No songs available.</p>
-    {% endif %}
+                <div class="song-info">
+                    <h3 class="song-title">{{ song.title }}</h3>
+                    <div class="song-meta">
+                        {% if song.movie_name %}
+                            <span class="meta-item">
+                                <i class="fas fa-film"></i>
+                                {{ song.movie_name }}
+                            </span>
+                        {% endif %}
+                        <span class="meta-item">
+                            <i class="fas fa-microphone"></i>
+                            {{ song.singer }}
+                        </span>
+                        <span class="meta-item">
+                            <i class="fas fa-music"></i>
+                            {{ song.genre }}
+                        </span>
+                    </div>
+                    {% if song.audio_file %}
+                        <div class="audio-player">
+                            <audio controls style="width: 100%;" data-song-id="{{ song.id }}">
+                                <source src="{{ song.audio_file.url }}" type="audio/mpeg">
+                                Your browser does not support the audio element.
+                            </audio>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+<style>
+    .audio-player {
+        background: var(--gray-light);
+        padding: 1rem;
+        border-radius: 8px;
+        margin-top: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .audio-player audio {
+        width: 100%;
+        height: 36px;
+        border-radius: 18px;
+    }
+
+    .audio-player audio::-webkit-media-controls-panel {
+        background: var(--navy);
+    }
+
+    .audio-player audio::-webkit-media-controls-play-button {
+        background-color: var(--white);
+        border-radius: 50%;
+    }
+
+    .audio-player audio::-webkit-media-controls-current-time-display,
+    .audio-player audio::-webkit-media-controls-time-remaining-display {
+        color: var(--white);
+    }
+
+    .audio-player.playing {
+        background: var(--navy);
+        transition: background-color 0.3s ease;
+    }
+
+    .audio-player.playing audio::-webkit-media-controls-panel {
+        background: var(--navy-light);
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Function to stop all other audio players
+    function stopOtherPlayers(currentPlayer) {
+        const allPlayers = document.querySelectorAll('audio');
+        allPlayers.forEach(player => {
+            if (player !== currentPlayer && !player.paused) {
+                player.pause();
+                player.currentTime = 0;
+                const playerContainer = player.closest('.audio-player');
+                if (playerContainer) {
+                    playerContainer.classList.remove('playing');
+                }
+            }
+        });
+    }
+
+    // Add event listeners to all audio players
+    const audioPlayers = document.querySelectorAll('audio');
+    audioPlayers.forEach(player => {
+        player.addEventListener('play', function() {
+            stopOtherPlayers(this);
+            const playerContainer = this.closest('.audio-player');
+            if (playerContainer) {
+                playerContainer.classList.add('playing');
+            }
+        });
+
+        player.addEventListener('pause', function() {
+            const playerContainer = this.closest('.audio-player');
+            if (playerContainer) {
+                playerContainer.classList.remove('playing');
+            }
+        });
+
+        player.addEventListener('ended', function() {
+            const playerContainer = this.closest('.audio-player');
+            if (playerContainer) {
+                playerContainer.classList.remove('playing');
+            }
+        });
+    });
+});
+</script>
 {% endblock %}
