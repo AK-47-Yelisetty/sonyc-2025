@@ -1,51 +1,56 @@
 {% extends 'base.html' %}
 
-{% block title %}Songs - Sonyc{% endblock %}
+{% block title %}Similar Songs - {{ song.title }} - Sonyc{% endblock %}
 
 {% block content %}
-    <h1>Discover Music</h1>
+    <h1>Similar Songs to "{{ song.title }}"</h1>
     
     <div class="song-grid">
-        {% for song in songs %}
+        {% for recommended_song in recommended_songs %}
             <div class="song-card">
                 <div class="song-image-container">
-                    <img src="{{ song.image.url }}" alt="{{ song.title }}" class="song-image">
+                    <img src="{{ recommended_song.image.url }}" alt="{{ recommended_song.title }}" class="song-image">
                     <div class="song-overlay">
-                        <button class="btn btn-primary view-btn" onclick="window.location.href='{% url 'songsapp:song_detail' song.id %}'">
+                        <button class="btn btn-primary view-btn" onclick="window.location.href='{% url 'songsapp:song_detail' recommended_song.id %}'">
                             <i class="fas fa-info-circle"></i>
                             View Details
                         </button>
                     </div>
                 </div>
                 <div class="song-info">
-                    <h3 class="song-title">{{ song.title }}</h3>
+                    <h3 class="song-title">{{ recommended_song.title }}</h3>
                     <div class="song-meta">
-                        {% if song.movie_name %}
+                        {% if recommended_song.movie_name %}
                             <span class="meta-item">
                                 <i class="fas fa-film"></i>
-                                {{ song.movie_name }}
+                                {{ recommended_song.movie_name }}
                             </span>
                         {% endif %}
                         <span class="meta-item">
                             <i class="fas fa-microphone"></i>
-                            {{ song.singer }}
+                            {{ recommended_song.singer }}
                         </span>
                         <span class="meta-item">
                             <i class="fas fa-music"></i>
-                            {{ song.genre }}
+                            {{ recommended_song.genre }}
                         </span>
                     </div>
-                    {% if song.audio_file %}
-                        <div class="audio-player">
-                            <audio controls style="width: 100%;" data-song-id="{{ song.id }}">
-                                <source src="{{ song.audio_file.url }}" type="audio/mpeg">
-                                Your browser does not support the audio element.
-                            </audio>
-                        </div>
-                    {% endif %}
+                    <div class="audio-player">
+                        <audio controls style="width: 100%;" data-song-id="{{ recommended_song.id }}">
+                            <source src="{{ recommended_song.audio_file.url }}" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </div>
                 </div>
             </div>
         {% endfor %}
+    </div>
+
+    <div style="margin-top: 3rem;">
+        <a href="{% url 'songsapp:song_detail' song.id %}" class="back-link">
+            <i class="fas fa-arrow-left"></i>
+            Back to Song
+        </a>
     </div>
 
 <style>
@@ -123,6 +128,41 @@
     .audio-player.playing audio::-webkit-media-controls-panel {
         background: var(--primary-dark);
     }
+
+    .song-card {
+        background: var(--surface);
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        transition: var(--transition);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .song-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .song-image {
+        width: 100%;
+        height: 250px;
+        object-fit: cover;
+        transition: var(--transition);
+    }
+
+    .song-card:hover .song-image {
+        transform: scale(1.05);
+    }
+
+    .song-info {
+        padding: 1.5rem;
+    }
+
+    .song-title {
+        font-size: 1.25rem;
+        margin-bottom: 1rem;
+        color: var(--text-primary);
+        font-weight: 600;
+    }
 </style>
 
 <script>
@@ -169,4 +209,4 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
-{% endblock %}
+{% endblock %} 

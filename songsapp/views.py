@@ -39,26 +39,18 @@ def song_recommendations(request, song_id):
             
         # Only include songs with at least one match
         if score > 0:
-            recommendations.append({
-                'song': song,
-                'score': score,
-                'matches': []
-            })
-            
-            # Add match details for display
-            if song.genre == current_song.genre:
-                recommendations[-1]['matches'].append('Genre')
-            if song.singer == current_song.singer:
-                recommendations[-1]['matches'].append('Singer')
-            if song.music_director == current_song.music_director:
-                recommendations[-1]['matches'].append('Music Director')
+            recommendations.append(song)
     
     # Sort recommendations by score (highest first)
-    sorted_recommendations = sorted(recommendations, key=lambda x: x['score'], reverse=True)
+    sorted_recommendations = sorted(recommendations, key=lambda x: (
+        x.genre == current_song.genre,
+        x.singer == current_song.singer,
+        x.music_director == current_song.music_director
+    ), reverse=True)
     
-    return render(request, 'songs/recommendations.html', {
-        'current_song': current_song,
-        'recommendations': sorted_recommendations
+    return render(request, 'songs/song_recommendations.html', {
+        'song': current_song,
+        'recommended_songs': sorted_recommendations
     })
 
 @login_required
